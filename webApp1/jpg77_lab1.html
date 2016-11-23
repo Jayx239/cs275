@@ -1,0 +1,64 @@
+<html>
+    <head>
+        <title>Fibonacci's Numbers</title>
+        <script type="text/javascript">
+            function Compute_Fib_Val(printTable = false){
+                intStr = document.getElementById("input").value;
+                inInt = parseInt(intStr);
+                if(intStr != "0" && !inInt){
+                    output_div.innerHTML = "Invalid Input";
+                    return;
+                }
+                if(inInt < 0){
+                    output_div.innerHTML = "Cannot compute Fib of a negative integer";
+                    return;
+                }
+                //if(printTable)
+                    table = create_table_head();
+                fibNum = 0;
+                lastVal = 0;
+                for(i=0; i <= inInt; i++){
+                    if(i == 1)
+                        lastVal = 1;
+                    else
+                        tempLastVal = fibNum;
+                    fibNum += lastVal;
+                    lastVal = tempLastVal;
+                    
+                  //  if(printTable)
+                        table+= add_table_row(i,fibNum)
+                }
+                
+                if(!printTable)
+                    output_div.innerHTML = fibNum;
+                else{
+                    //table += create_table_end();
+                    output_div.innerHTML = table;
+                }
+            }
+            
+            function create_table_head(){
+                return "<table>\n\t<tr>\n\t\t<th>n\n\t\t<th>fib(n)\n\t";
+            }
+            
+            function add_table_row(index,fibNum){
+                return "\t<tr>\n\t\t<td>" + index.toString() + "\n\t\t<td>" + fibNum.toString() + "\n\t";
+                
+            }
+            function create_table_end(){
+                return "\n<table/>";
+            }
+        </script>
+    </head>
+    
+    
+    <body>
+        <img src="https://www.mathsisfun.com/numbers/images/fibonacci-spiral.gif"/>
+    </body>
+    
+    <input type="text" id="input" placeholder="Enter fib sequence number" ></input>
+    <input type="button" onclick='Compute_Fib_Val()' value="Calculate Value"/>
+    <input type="button" onclick='Compute_Fib_Val(true)' value="Create Table Of Sequence"/>
+    <div id='output_div'>
+    </div>
+</html>

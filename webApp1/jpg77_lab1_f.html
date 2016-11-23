@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Fibonacci's Numbers</title>
+        <script type="text/javascript">
+			// Function to compute fibinacci values
+				// printTable flag allows the same method to produce an
+				// output table of all fibinacci values up to 
+				// the entered index
+            function Compute_Fib_Val(printTable = false){
+                // get string input and convert to int
+				intStr = document.getElementById("input").value;
+                inInt = parseInt(intStr);
+				
+                // Check for invalid entries
+				if(intStr != "0" && !inInt){
+                    output_div.innerHTML = "Invalid Input";
+                    return;
+                }
+				// Cannot be less than 0
+                if(inInt < 0){
+                    output_div.innerHTML = "Cannot compute Fib of a negative integer";
+                    return;
+                }
+				// Begin table creation
+                if(printTable)
+                    table = create_table_head();
+                fibNum = 0;
+                lastVal = 0;
+				// calculate fibinacci numbers
+                for(i=0; i <= inInt; i++){
+                    if(i == 2)
+                        lastVal = 1;
+                    else
+                        tempLastVal = fibNum;
+                    fibNum += lastVal;
+                    lastVal = tempLastVal;
+                    
+                    if(printTable)
+                        table+= add_table_row(i,fibNum)
+                }
+                
+                if(!printTable)
+                    output_div.innerHTML = fibNum;
+                else{
+                    output_div.innerHTML = table;
+                }
+            }
+			
+            // Table create functions
+            function create_table_head(){
+                return "<table>\n\t<tr>\n\t\t<th>n\n\t\t<th>fib(n)\n\t";
+            }
+            
+            function add_table_row(index,fibNum){
+                return "\t<tr>\n\t\t<td>" + index.toString() + "\n\t\t<td>" + fibNum.toString() + "\n\t";
+                
+            }
+        </script>
+    </head>
+    
+    <!-- image -->
+    <body>
+        <img src="https://www.mathsisfun.com/numbers/images/fibonacci-spiral.gif"/>
+    </body>
+    
+    <!-- user input field -->
+	<input type="text" id="input" placeholder="Enter fib sequence number" ></input>
+    
+	<!-- create buttons for calculations-->
+	<input type="button" onclick='Compute_Fib_Val()' value="Calculate Value"/>
+    <input type="button" onclick='Compute_Fib_Val(true)' value="Create Table Of Sequence"/>
+    <div id='output_div'>
+    </div>
+</html>

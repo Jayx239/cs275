@@ -1,0 +1,61 @@
+<html>
+    <head>
+        <title>Jason's Weather App</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js">        </script>
+
+        <script>
+            
+            function lookupGeoCoordinates(){
+                var url="https://api.wunderground.com/api/"+document.getElementById("apiKeyInput").value+"/geolookup/q/autoip.json";    // Build URL
+                // Make AJAX request and get zip code, call get weather function
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: "application/json; charst=utf-8",
+                    data: "{}",
+                    dataType: "jsonp",
+                    success: function(msg){
+                        requestWeatherData(msg.location.zip);
+                    }
+                });
+            }
+                // Function to get weather data and display
+                function requestWeatherData(zipCode){
+                    var url = "https://api.wunderground.com/api/"+ document.getElementById("apiKeyInput").value+ "/hourly/q/"+ zipCode +".json"; //Build URL
+                    //Make AJAX Request
+                  $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: "application/json; charst=utf-8",
+                    data: "{}",
+                    dataType: "jsonp",
+                    success: function(msg){
+                        var forcastData = msg.hourly_forecast;  // Get Json object
+                        // Create output string from json data
+                        var out=""
+                        for(var i=0; i<forcastData.length; i++)
+                            out+= "<img src=\"" + forcastData[i].icon_url + "\"/>\n<br>\n<span>" + forcastData[i].FCTTIME.pretty + "\n<br>\n<span>" + forcastData[i].condition +" " + forcastData[i].wx+ "\n<br>\n<span>" + forcastData[i].temp.english + " &deg;F\n<br>\n<span>" + forcastData[i].qpf.english*100 + " % chance of rain\n<br>\n<span>Humidity " + forcastData[i].humidity + "%\n<br>\n<span>wind speed " + forcastData[i].wspd.english + " MPH " + forcastData[i].wdir.dir+"\n<br>\n";
+                        
+                        $("#responseField").html(out);  // Add data to page via jquery
+                        }
+                    });  
+                }
+                function populateDiv(msg){
+                      var json = msg;
+                    
+                  }
+                
+        </script>
+    </head>
+    <body>
+        <span>Welcome</span>
+        <br>
+        
+        <input type="text" id="apiKeyInput" placeholder="Enter API Key"/>
+        <input id="getRequestButton" type="button" onclick="lookupGeoCoordinates()" value="Get Weather"/>
+        
+        <div id="responseField" >
+        
+        </div>
+    </body>
+</html>

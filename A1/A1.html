@@ -1,0 +1,168 @@
+<html>
+    <head>
+        <title>Septa On Tap</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script>
+        // Request format 
+        //http://www3.septa.org/hackathon/TransitView/?route=<X>&callback=?
+            
+            // Function to submit request 
+            function submitRequest(){   
+                // Get route number from option id
+                var routeNumber = $("select option:selected").attr("id");
+                // Ignore placeholder option
+                if(routeNumber == "placeholder")
+                    return;
+                // Build URL
+                var url="https://www3.septa.org/hackathon/TransitView/?route="+routeNumber;    // Build URL
+                
+                // Make AJAX to get bus data
+                $.ajax({
+                    type: "GET",
+                    url: "https://www.cs.drexel.edu/~pp468/api/request.php",
+                    data: {url},
+                    dataType: "json",
+                    success: function(msg){
+                        // Parse Data
+                        parseRouteData(msg.bus);
+                    }
+                });
+            }
+            
+            
+            // Function to parse route data
+            function parseRouteData(jsonObject){
+                // Select table node
+                var selectNode = $("table");
+                // Create table headers
+                selectNode.html("<tr><th>Vehicle Number</th><th>Block ID</th><th>Direction</th><th>Destination</th><th>Delay</th></tr>");
+                
+                // Iterate through each bus json object and get data
+                // create html elements and append to table html.
+                for(var i=0; i<jsonObject.length; i++){
+                    var nextRow = "<tr>";
+                    // Vehicle ID
+                    nextRow+= "<td>";
+                    nextRow += checkEmpty(jsonObject[i].VehicleID);
+                    nextRow+="</td>";
+                    
+                    // Block ID
+                    nextRow+= "<td>";
+                    nextRow += checkEmpty(jsonObject[i].BlockID);
+                    nextRow+="</td>";
+                    
+                    // Direction
+                    nextRow+= "<td>";
+                    nextRow += checkEmpty(jsonObject[i].Direction);
+                    nextRow+="</td>";
+                    
+                    // destination
+                    nextRow+= "<td>";
+                    nextRow += checkEmpty(jsonObject[i].destination);
+                    nextRow+="</td>";
+                    
+                    // On time / delay
+                    nextRow+= "<td>";
+                    if(parseInt(jsonObject.Offset) > 2)
+                        nextRow += jsonObject[i].offset;
+                    else
+                        nextRow+= "On Time";
+                    nextRow+="</td><tr>";
+                    selectNode.append(nextRow);
+                }
+                function checkEmpty(val){
+                    if(val == "" || val == " ")
+                        return "No Data";
+                    return val;
+                }
+            }
+        </script>
+        
+        <style>
+        table{
+            
+            width:75%;
+            align-content: center;
+        }
+        td{
+            width: 20%;
+            position: relative;
+            text-align: center;
+        }
+        th{
+            width: 20%;
+            position: relative;
+        }
+        </style>
+    
+    </head>
+    
+    <body>
+        <h1>Septa On Tap</h1>
+        
+        <!-- Select field for selecting route number-->
+        <select>
+            <option id='placeholder'>
+                Select Route Number
+            </option>
+            <option id='6'>
+                6
+            </option>
+            <option id='14'>
+                14
+            </option>
+            <option id='17'>
+                17
+            </option>
+            <option id='20'>
+                20
+            </option>
+            <option id='23'>
+                23
+            </option>
+            <option id='33'>
+                33
+            </option>
+            <option id='37'>
+                37
+            </option>
+            <option id='42'>
+                42
+            </option>
+            <option id='47'>
+                47
+            </option>
+            <option id='52'>
+                52
+            </option>
+            <option id='56'>
+                56
+            </option>
+            <option id='60'>
+                60
+            </option>
+            <option id='66'>
+                66
+            </option>
+            <option id='73'>
+                73
+            </option>
+            <option id='79'>
+                79
+            </option>
+            <option id='108'>
+                108
+            </option>
+            <option id='109'>
+                109
+            </option>
+            
+        </select>
+        <!-- Input button for querying bus info-->
+        <input type="button" onclick="submitRequest()" value="Get Route Status">
+        <!-- table for displaying response data -->
+        <table>
+        </table>
+        
+    </body>
+</html>

@@ -1,0 +1,297 @@
+<html onload="resetGame()">
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js">
+    </script>
+    <script>
+        var DEBUG = false; // Debug control
+
+        // Dictionary used for player changes
+        var switchValue = {
+            "X": "O",
+            "O": "X"
+        };
+
+        var nextValue = "X"; // Next player to go
+        var GameOver = false; // Flag indicating end of game
+        var NumMoves = 0; // Counter variable to determine if a tie occurs
+
+
+        var WelcomeMessage = "Welcome to tick tack toe\nTo begin, player x will choose a block to put an x, followed by player y. This will continue until one player gets three of there symbols in a row.\n This console will display whos turn it is, and alert you to any invalid choices. For extended debug information, click the Debug check box, this will open up a console with further debug information.";
+
+        // Function to set user console messages
+        function setWinnerBanner(message) {
+            var winnerBanner = document.getElementById("winnerBanner");
+            if (message == "ClearBanner")
+                winnerBanner["value"] = "";
+            winnerBanner["value"] += message + "\n";
+        }
+
+        // Function for Debug checkbox
+        function toggleDebug() {
+            DEBUG = !DEBUG;
+            if (DEBUG) {
+                document.getElementById("debugConsole").style.visibility = "visible";
+            } else
+                document.getElementById("debugConsole").style.visibility = "hidden";
+        }
+
+        // Write message to console
+        function writeToConsole(message) {
+            debugConsole["value"] += "Debug: " + message + "\n";
+        }
+        // This is where the magic happens
+        function setValue(cell) {
+            // print to consoles
+            var debugConsole = document.getElementById("debugConsole");
+            var turn = "" + switchValue[nextValue] + "'s turn";
+            // Get row and column indeces
+            var Row = parseInt(cell[1]);
+            var Col = parseInt(cell[3]);
+
+            // Indicate game over and do not procede with game logic
+            if (GameOver) {
+                writeToConsole("Game Over\nPress the restart button to play again!");
+                setWinnerBanner("Game Over\nPress the restart button to play again!");
+                return;
+            }
+            
+            var cellElem = document.getElementById(cell);
+            // Place choice on board if it is a valid choice
+            if (cellElem["innerHTML"] != "X" && cellElem["innerHTML"] != "O") {
+                // Show current players turn
+            setWinnerBanner(turn);
+
+                cellElem.innerHTML = nextValue;
+                NumMoves++; // Increment counter
+                nextValue = switchValue[nextValue]; // Cycle to next player
+
+                // Check if move has ended the game, else if all choices are made - tie
+                if (checkForWin(Row, Col)) {
+                    writeToConsole("Game Over\n" + switchValue[nextValue] + " Wins");
+                    setWinnerBanner("Game Over\n" + switchValue[nextValue] + " Wins");
+                } else if (NumMoves >= 9) {
+                    writeToConsole("Game Over\nGame ended in a tie!");
+                    setWinnerBanner("Game Over\nGame ended in a tie!");
+                }
+            } else {
+                setWinnerBanner("Invalid Selection");
+                setWinnerBanner("" + nextValue + "'s turn")
+                if (DEBUG)
+                    writeToConsole("Error: Invalid Selection\n"); // Invalid selection
+            }
+            
+        }
+
+        // Reinitialize game
+        function resetGame() {
+            //foreach table elem
+            $("td").text("");
+            nextValue = "X";
+            GameOver = false;
+            NumMoves = 0;
+            setWinnerBanner("ClearBanner");
+            setWinnerBanner(WelcomeMessage)
+        }
+
+        // Get upper sibling of location
+        function upperSibling(Row, Col) {
+            if (Row <= 1)
+                return false;
+            else {
+                var up = Row - 1;
+                var upperSib = document.getElementById("R" + up + "C" + Col); //$("td[id='R" + up + "C" +  Col + "']");
+                var upperSibText = upperSib.innerHTML;
+                if (upperSibText == (switchValue[nextValue]))
+                    return true;
+                return false;
+            }
+        }
+
+        // Get lower sibling of position
+        function lowerSibling(Row, Col) {
+            if (Row >= 3)
+                return false;
+            else {
+                var lower = Row + 1;
+                lowerSib = document.getElementById("R" + lower + "C" + Col);
+                if (lowerSib != null && lowerSib.innerHTML == (switchValue[nextValue]))
+                    return true;
+                return false;
+            }
+        }
+
+        // Get left sibling from position
+        function leftSibling(Row, Col) {
+            if (Col <= 1)
+                return false;
+            else {
+                var left = Col - 1;
+                leftSib = document.getElementById("R" + Row + "C" + left); //$("tr:[" + Row + "] td:[" + left + "]");
+                if (leftSib != null && leftSib["innerHTML"] == (switchValue[nextValue]))
+                    return true;
+                return false;
+            }
+        }
+
+        // Get Right Sibling of position
+        function rightSibling(Row, Col) {
+            if (Col >= 3)
+                return false;
+            else {
+                var right = Col + 1;
+                rightSib = document.getElementById("R" + Row + "C" + right); //$("tr:[" + Row + "] td:[" + right + "]");
+                if (rightSib != null && rightSib.innerHTML == (switchValue[nextValue]))
+                    return true;
+                return false;
+
+            }
+        }
+
+        // Check all possible win patterns
+        function checkForWin(Row, Col) {
+            if (checkVertical(Row, Col) || checkHorizontal(Row, Col) || checkDiagonal(Row, Col)) {
+                GameOver = true;
+                return true;
+            }
+            return false;
+        }
+
+        // Check vertical row
+        function checkVertical(Row, Col) {
+            valuesInCol = 1;
+
+            if (upperSibling(Row, Col)) {
+                valuesInCol++;
+                if (upperSibling(Row - 1, Col))
+                    valuesInCol++;
+            }
+            if (lowerSibling(Row, Col)) {
+                valuesInCol++;
+                if (lowerSibling(Row + 1, Col))
+                    valuesInCol++;
+            }
+
+            if (valuesInCol >= 3)
+                return true;
+            return false;
+        }
+
+        // Method to check if any horizontal patterns are met
+        function checkHorizontal(Row, Col) {
+            valuesInRow = 1;
+            if (rightSibling(Row, Col)) {
+                valuesInRow++;
+                if (rightSibling(Row, Col + 1))
+                    valuesInRow++;
+            }
+            if (leftSibling(Row, Col)) {
+                valuesInRow++;
+                if (leftSibling(Row, Col - 1))
+                    valuesInRow++;
+            }
+            if (valuesInRow >= 3)
+                return true;
+            return false;
+        }
+
+        // Checks diagonal matches
+        function checkDiagonal(Row, Col) {
+            // Diagonal top left to  bottom right
+            valuesInDiagonal = 1
+
+            if (leftSibling(Row - 1, Col) && leftSibling(Row - 2, Col - 1))
+                return true;
+            if (leftSibling(Row + 1, Col) && leftSibling(Row + 2, Col - 1))
+                return true;
+
+            if (rightSibling(Row + 1, Col) && rightSibling(Row + 2, Col + 1))
+                return true;
+            if (rightSibling(Row - 1, Col) && rightSibling(Row - 2, Col + 1))
+                return true;
+            if (rightSibling(Row + 1, Col) && leftSibling(Row - 1, Col))
+                return true;
+            if (rightSibling(Row - 1, Col) && leftSibling(Row + 1, Col))
+                return true;
+            if (leftSibling(Row + 1, Col) && rightSibling(Row - 1, Col))
+                return true;
+            return false;
+        }
+    </script>
+    <style>
+        td {
+            height: 20%;
+            width: 20%;
+            border-width: medium;
+            border-color: black;
+            border-style: inset;
+            text-align: center;
+            font-size: 50;
+        }
+        
+        span {
+            top: 50%;
+            height: 15%;
+            width: 20%;
+            border-width: medium;
+            border-color: black;
+            border-style: inset;
+        }
+        
+        textarea.debug {
+            height: 40%;
+            width: 50%;
+            visibility: hidden
+        }
+        
+        textarea.turn {
+            height: 20%;
+            width: 30%;
+        }
+        
+        table {
+            top: 10%;
+            width: 50%;
+            height: 50%;
+        }
+        
+        button {
+            width: 10%;
+            height: 5%;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Tick Tack Toe</h1>
+    <table>
+        <tr id='R1' class='table'>
+            <td id='R1C1' onclick="setValue('R1C1')" class='square' />
+            <td id='R1C2' onclick="setValue('R1C2')" class='square' />
+            <td id='R1C3' onclick="setValue('R1C3')" class='square' />
+
+        </tr>
+        <tr id='R2'>
+            <td id='R2C1' onclick="setValue('R2C1')" class='square' />
+            <td id='R2C2' onclick="setValue('R2C2')" class='square' />
+            <td id='R2C3' onclick="setValue('R2C3')" class='square' />
+        </tr>
+        <tr id='R3'>
+            <td id='R3C1' onclick="setValue('R3C1')" class='square' />
+            <td id='R3C2' onclick="setValue('R3C2')" class='square' />
+            <td id='R3C3' onclick="setValue('R3C3')" class='square' />
+        </tr>
+
+    </table>
+
+    <input type="checkbox" onchange="toggleDebug()">Debug</input>
+    <textarea id="winnerBanner" visibility="visible" class='turn'>
+        Welcome to tick tack toe To begin, player x will choose a block to put an x, followed by player y. This will continue until one player gets three of there symbols in a row. This console will display whos turn it is, and alert you to any invalid choices. For extended debug information, click the Debug check box, this will open up a console with further debug information.
+    </textarea>
+    <button onclick='resetGame()'>Restart</button>
+    <textarea id='debugConsole' class="debug">
+
+    </textarea>
+</body>
+
+</html>
